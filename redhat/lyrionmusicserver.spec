@@ -161,7 +161,14 @@ Obsoletes:	squeezecenter < 7.4
 Obsoletes:	slimserver < 7
 Obsoletes:	SliMP3 < 5
 
-AutoReqProv:	no
+# Hide bundled CPAN modules from RPM's automatic provides/requires
+# generator.
+%global __provides_exclude_from %{_datadir}/%{shortname}
+%global __requires_exclude_from %{_datadir}/%{shortname}
+%global __requires_exclude ^perl\\(
+%{?perl_default_filter}
+
+BuildRequires:	perl-generators
 
 BuildArch:	noarch
 

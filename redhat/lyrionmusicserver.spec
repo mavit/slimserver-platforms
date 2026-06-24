@@ -91,6 +91,7 @@ Source4:	%{shortname}.service
 Source5:	README.systemd
 Source6:        README.rebranding
 Source7:        %{shortname}.preset
+Source8:	perlbundledlib.prov
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 BuildRequires:   systemd-rpm-macros
@@ -161,14 +162,31 @@ Obsoletes:	squeezecenter < 7.4
 Obsoletes:	slimserver < 7
 Obsoletes:	SliMP3 < 5
 
-# Hide bundled CPAN modules from RPM's automatic provides/requires
+BuildRequires:	perl-generators
+
+# Pass the list of bundled modules through a wrapper that will generate
+# bundled() provides.
+%global _local_file_attrs perlbundledlib
+%global __perlbundledlib_provides %{SOURCE8}
+%global __perlbundledlib_magic %{__perllib_magic}
+%global __perlbundledlib_path %{__perllib_path}
+%global __perlbundledlib_flags %{__perllib_flags}
+
+# Hide bundled CPAN modules from RPM's default provides/requires
 # generator.
-%global __provides_exclude_from %{_datadir}/%{shortname}
-%global __requires_exclude_from %{_datadir}/%{shortname}
+%global __perllib_exclude_path ^%{_datadir}/%{shortname}/
+%global __requires_exclude_from ^%{_datadir}/%{shortname}/
 %global __requires_exclude ^perl\\(
+
 %{?perl_default_filter}
 
-BuildRequires:	perl-generators
+Provides: bundled(faad2) = 2.7
+Provides: bundled(flac) = 1.3.4
+Provides: bundled(mac) = 10.96
+Provides: bundled(mppdec) = 1.95e
+Provides: bundled(sls)
+Provides: bundled(sox) = 14.4.3
+Provides: bundled(wavpack) = 5.3.0
 
 BuildArch:	noarch
 

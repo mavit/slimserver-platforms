@@ -640,9 +640,12 @@ sub buildRPM {
         copy("$buildDir/platforms/redhat/lyrionmusicserver.logrotate", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.service", "$buildDir/rpm/SOURCES");
 		copy("$buildDir/platforms/redhat/lyrionmusicserver.preset", "$buildDir/rpm/SOURCES");
+	copy("$buildDir/platforms/redhat/perlbundledlib.prov", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.systemd", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.rebranding", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.spec", "$buildDir/rpm/SPECS");
+
+	chmod(0777 & ~umask(), "$buildDir/rpm/SOURCES/perlbundledlib.prov");
 
 	## Just check, if this is a 'nightly' build, pass on 'trunk' to the rpmbuild command
 	if ($releaseType eq "nightly") {

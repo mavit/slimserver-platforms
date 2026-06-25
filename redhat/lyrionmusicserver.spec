@@ -77,8 +77,6 @@ Packager:	Lyrion Community
 Version:	%{_version}
 Release:	%{rpm_release}
 Summary:        Lyrion Music Server
-
-License:	GPL and proprietary
 URL:		https://www.lyrion.org
 %if %{with release}
 Source0:	https://downloads.lms-community.org/LyrionMusicServer_v%{version}/%{src_basename}-%{version}.tgz
@@ -93,6 +91,47 @@ Source6:        README.rebranding
 Source7:        %{shortname}.preset
 Source8:	perlbundledlib.prov
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+
+License:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
+# In order of mention in License.txt:
+# - Lyrion Music Server:  GNU General Public License v2.0 only.
+# - SoftSqueeze:          Not included in Source0 tarball.
+# - CODE2000:             Not included in Source0 tarball.
+# - lib/MPEG/Audio/Frame  Same as Perl.
+# - lib/Protocol/WebSocket
+#                         Same as Perl.
+# - lib/Log/Dispatch      Same as Perl.
+# - lib/Class/Accessor/Grouped
+#                         Same as Perl.
+# - lib/Async/Util        Same as Perl.
+# - lib/Audio/Scan        GNU General Public License v2.0 or later.
+# - lib/Cache/FileBackend Same as Perl.
+# - lib/CGI/Cookie        "It may be used and modified freely".
+# - lib/CGI/Util          "GPL and the Artistic License 2.0".
+# - lib/Net/UPnp          BSD 3-Clause "New" or "Revised" License
+# - lib/DBIx/Class        Same as Perl.
+# - lib/DBIx/Migration    Same as Perl.
+# - lib/Tie/IxHash        Same as Perl.
+# - lib/Template/Provide  Same as Perl.
+# - lib/HTML/FormatText   Same as Perl.
+# - lib/AnyEvent          Same as Perl.
+# - lib/AnyEvent/Impl/PerfMonEV
+#                         GNU General Public License v2.0 only.
+# - CPAN/*                FIXME.  There's a lot in here to pick through.  Given
+#                         that it would be better to drop as many bundled
+#                         modules as possible, it might be quicker to just do
+#                         that rather than work through this.
+# - Bin/*/faad:           GNU General Public License v2.0 or later.
+# - Bin/*/flac:           GNU General Public License v2.0 or later.
+# - Bin/*/mac:            BSD 3-Clause "New" or "Revised" License.
+# - Bin/*/mppdec:         GNU Lesser General Public License v2.1 or later
+# - Bin/*/sls:            "This build is for use with Squeezebox Server only".
+# - Bin/*/sox:            GNU General Public License v2.0 or later.
+# - Bin/*/wvunpack:       BSD 3-Clause "New" or "Revised" License.
+# - Squeezebox firmware:  Not included in Source0 tarball.
+# - SLIMP3 firmare:       Not included in Source0 tarball.
+# - Slim Devices logos, graphics, animations, and documentation:
+#                         Not licensed for redistribution.
 
 BuildRequires:   systemd-rpm-macros
 Requires(pre):   /usr/bin/getent

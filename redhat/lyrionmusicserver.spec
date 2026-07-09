@@ -162,7 +162,11 @@ Obsoletes:	squeezecenter < 7.4
 Obsoletes:	slimserver < 7
 Obsoletes:	SliMP3 < 5
 
+%if 0%{?suse_version} > 0
+BuildRequires:  perl-rpm-packaging
+%else
 BuildRequires:	perl-generators
+%endif
 
 # Pass the list of bundled modules through a wrapper that will generate
 # bundled() provides.

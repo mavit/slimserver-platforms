@@ -58,6 +58,11 @@
 %{error:One of the conditonals trunk, branch or release is required}
 %endif
 
+# Include bundled CPAN modules and transcoding binaries?  Note that even
+# without this, we still include some bundled libraries, in lib/, that
+# have been modified for our purposes.
+%bcond bundled 1
+
 # The variable src_basename  is passed to the build by the buildme.pl script.
 # At the moment the value is lyrionmusicserver. We could thus use that 
 # variable everywhere in the RPM spec file where we want to use that 
@@ -79,9 +84,9 @@ Release:	%{rpm_release}
 Summary:        Lyrion Music Server
 URL:		https://www.lyrion.org
 %if %{with release}
-Source0:	https://downloads.lms-community.org/LyrionMusicServer_v%{version}/%{src_basename}-%{version}.tgz
+Source0:	https://downloads.lms-community.org/LyrionMusicServer_v%{version}/%{src_basename}-%{version}%{?!with_bundled:-noCPAN}.tgz
 %else
-Source0:	https://downloads.lms-community.org/nightly/%{src_basename}-%{version}-%{_revision}.tgz
+Source0:	https://downloads.lms-community.org/nightly/%{src_basename}-%{version}-%{_revision}%{?!with_bundled:-noCPAN}.tgz
 %endif
 Source1:	%{shortname}.config
 Source3:	%{shortname}.logrotate
@@ -89,7 +94,7 @@ Source4:	%{shortname}.service
 Source5:	README.systemd
 Source6:        README.rebranding
 Source7:        %{shortname}.preset
-Source8:	perlbundledlib.prov
+Source8:	dependencies.pl
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 License:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
@@ -186,22 +191,47 @@ BuildRequires:  perl-rpm-packaging
 BuildRequires:	perl-generators
 %endif
 
-# Pass the list of bundled modules through a wrapper that will generate
-# bundled() provides.
-%global _local_file_attrs perlbundledlib
-%global __perlbundledlib_provides %{SOURCE8}
-%global __perlbundledlib_magic %{__perllib_magic}
-%global __perlbundledlib_path %{__perllib_path}
-%global __perlbundledlib_flags %{__perllib_flags}
+%global _local_file_attrs lyrion_modules:lyrion_trace:perl:perllib
 
-# Hide bundled CPAN modules from RPM's default provides/requires
-# generator.
-%global __perllib_exclude_path ^%{_datadir}/%{shortname}/
-%global __requires_exclude_from ^%{_datadir}/%{shortname}/
-%global __requires_exclude ^perl\\(
+# Read dependencies directly from modules.conf:
+%global __lyrion_modules_path ^%{_sysconfdir}/%{shortname}/modules\.conf$
+%global __lyrion_modules_protocol multifile
+%global __lyrion_modules_requires %{SOURCE8} --requires
+
+# Slim:Utils::MemoryUsage is an optional load, and its dependencies are
+# not included.
+%global __lyrion_trace_path ^%{_usr}/lib/perl5/vendor_perl/Slim/Utils/MemoryUsage\.pm$
+%global __lyrion_trace_protocol multifile
+%global __lyrion_trace_recommends %{SOURCE8} --requires
+
+# Since modules.conf isn't exhaustive, run the usual Perl dependency
+# generators too, but with a wrapper to filter out bundled Requires and
+# mark bundled Provides with bundled():
+%global __perl_protocol multifile
+%global __perl_requires %{SOURCE8} --requires
+%global __perllib_protocol multifile
+%global __perllib_provides %{SOURCE8} --provides
+%global __perllib_requires %{SOURCE8} --requires
+
+%if %{with bundled}
+# # We bundle some files in the CPAN directories that we never actually
+# # use, causing unwanted dependencies.
+# %%global __perllib_exclude_path ^%%{_datadir}/%%{shortname}/
+
+# We bundle shared libraries for multiple CPU architectures, making the
+# dependencies impossible to satisfy.
+%global __requires_exclude_from ^(%{_datadir}/%{shortname}/|%{_usr}/lib/perl5/vendor_perl/Slim/Utils/MemoryUsage\\.pm\$)
+%else
+%global __requires_exclude_from ^%{_usr}/lib/perl5/vendor_perl/Slim/Utils/MemoryUsage\\.pm$
+%endif
+
+# Some dependencies are unresolvable because they're provided by the
+# "wrong" file.
+%global __requires_exclude ^perl\\(HTTP::Daemon::ClientConn|Slim::Menu::BrowseLibrary::(Releases|Works)\\)
 
 %{?perl_default_filter}
 
+%if %{with bundled}
 Provides: bundled(faad2) = 2.7
 Provides: bundled(flac) = 1.3.4
 Provides: bundled(mac) = 10.96
@@ -209,6 +239,15 @@ Provides: bundled(mppdec) = 1.95e
 Provides: bundled(sls)
 Provides: bundled(sox) = 14.4.3
 Provides: bundled(wavpack) = 5.3.0
+%else
+Recommends: faad2
+Recommends: flac
+Recommends: mac
+Recommends: mppdec
+Recommends: sls
+Recommends: sox
+Recommends: wavpack
+%endif
 
 Provides: group(lyrionmusicserver)
 Provides: user(lyrionmusicserver)
@@ -222,16 +261,12 @@ player. It supports MP3, AAC, WMA, FLAC, Ogg Vorbis, WAV and more!
 As of version 7.7 it also supports UPnP clients.
 
 %prep
-%if %{with release}
-%autosetup -n %{src_basename}-%{version}
-%else
-%autosetup -n %{src_basename}-%{version}-%{_revision}
-%endif
-
+%autosetup -n %{src_basename}-%{version}%{?!with_release:-%{_revision}}%{?!with_bundled:-noCPAN}
 cp %SOURCE5 %SOURCE6 ./
 
 
 %build
+%if %{with bundled}
 # Remove mysqld and other unneeded files
 rm -rf Bin/darwin
 rm -rf Bin/i386-freebsd-64int
@@ -240,6 +275,7 @@ rm -rf CPAN/arch/*/darwin-thread-multi-2level
 rm -rf CPAN/arch/*/sparc-linux
 rm -rf CPAN/arch/*/i386-freebsd-64int
 rm -rf CPAN/arch/*/MSWin32-x86-multi-thread
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -260,8 +296,10 @@ mkdir -p $RPM_BUILD_ROOT%{_var}/lib/%{shortname}/prefs/plugin
 mkdir -p $RPM_BUILD_ROOT%{_var}/log/%{shortname}
 
 # Copy over the files
+%if %{with bundled}
 cp -Rp Bin $RPM_BUILD_ROOT%{_datadir}/%{shortname}
 cp -Rp CPAN $RPM_BUILD_ROOT%{_datadir}/%{shortname}
+%endif
 cp -Rp Firmware $RPM_BUILD_ROOT%{_datadir}/%{shortname}
 cp -Rp Graphics $RPM_BUILD_ROOT%{_datadir}/%{shortname}
 cp -Rp HTML $RPM_BUILD_ROOT%{_datadir}/%{shortname}

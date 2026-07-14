@@ -1,4 +1,0 @@
-#!/bin/sh
-
-"$(rpm -E '%__perllib_provides')" "$@" \
-    | perl -pe 's/perl\((.+)\)/bundled(perl($1))/';

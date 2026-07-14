@@ -171,6 +171,9 @@ Provides: bundled(sls)
 Provides: bundled(sox) = 14.4.3
 Provides: bundled(wavpack) = 5.3.0
 
+Provides: group(lyrionmusicserver)
+Provides: user(lyrionmusicserver)
+
 BuildArch:	noarch
 
 %description

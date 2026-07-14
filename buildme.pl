@@ -445,6 +445,8 @@ sub showUsage {
 	print "\n";
 	print "--- Building an RPM package\n";
 	print "    --build rpm <required opts above>\n";
+	print "    --noCPAN (optional) (experimental)\n";
+	print "                                 - Build a package with no CPAN modules included\n";
 	print "\n";
 	print "--- Building a Debian Package\n";
 	print "    --build debian <required opts above>\n";
@@ -626,21 +628,26 @@ sub buildRPM {
 		mkpath("$buildDir/rpm/$path") || die "PROBLEM: I couldn't create $buildDir/rpm/$path...\n";
 	}
 
-	## Now we need to build a tarball ...
-	print "INFO: Building $buildDir/$destName.tgz for the RPM...\n";
+	my $destPath = "$buildDir/$destName". ($noCPAN ? '-noCPAN' : '');
 
-	buildTarball($dirsToExcludeForRPM, "$buildDir/$destName");
+	## Now we need to build a tarball ...
+	print "INFO: Building $destPath.tgz for the RPM...\n";
+
+	buildTarball(
+		$dirsToExcludeForRPM. ($noCPAN ? ' '. $dirsToExcludeForLinuxNoCpanTarball : ''),
+		$destPath,
+	);
 
 	## We already built a tarball, so now lets use it...
 
-	print "INFO: Moving $buildDir/$destName.tgz to $buildDir/rpm/SOURCES/...\n";
-	system("mv $buildDir/$destName.tgz $buildDir/rpm/SOURCES/");
+	print "INFO: Moving $destPath.tgz to $buildDir/rpm/SOURCES/...\n";
+	system("mv $destPath.tgz $buildDir/rpm/SOURCES/");
 	## Copy the various SPEC< Config, etc files into the right dirs...
         copy("$buildDir/platforms/redhat/lyrionmusicserver.config", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.logrotate", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.service", "$buildDir/rpm/SOURCES");
 		copy("$buildDir/platforms/redhat/lyrionmusicserver.preset", "$buildDir/rpm/SOURCES");
-	copy("$buildDir/platforms/redhat/perlbundledlib.prov", "$buildDir/rpm/SOURCES");
+	copy("$buildDir/platforms/redhat/dependencies.pl", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.systemd", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.rebranding", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.spec", "$buildDir/rpm/SPECS");
@@ -652,9 +659,11 @@ sub buildRPM {
 		$releaseType = "trunk";
 	}
 
+	my $withoutCPAN = $noCPAN ? '--without=bundled' : '';
+
         # Do it
         my $date = strftime('%Y-%m-%d', localtime());
-        print `rpmbuild -bb --with $releaseType --define="src_basename $defaultDestName" --define="_version $version" --define="_revision $revision" --define='_topdir $buildDir/rpm' $buildDir/rpm/SPECS/lyrionmusicserver.spec`;
+	print `rpmbuild -bb --with $releaseType $withoutCPAN --define="src_basename $defaultDestName" --define="_version $version" --define="_revision $revision" --define='_topdir $buildDir/rpm' $buildDir/rpm/SPECS/lyrionmusicserver.spec`;
 
 	## Just move the file out of the building directory, and put it into the destDir
 	print "INFO: Moving $buildDir/rpm/RPMS/noarch/*.rpm to $destDir\n";

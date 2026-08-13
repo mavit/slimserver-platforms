@@ -97,7 +97,12 @@ Source7:        %{shortname}.preset
 Source8:	dependencies.pl
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
+%if %{with bundled}
+License:	Artistic-2.0 AND BSD-3-Clause AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
+SourceLicense:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
+%else
 License:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
+%endif
 # In order of mention in License.txt:
 # - Lyrion Music Server:  GNU General Public License v2.0 only.
 # - SoftSqueeze:          Not included in Source0 tarball.
@@ -122,10 +127,7 @@ License:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artist
 # - lib/AnyEvent          Same as Perl.
 # - lib/AnyEvent/Impl/PerfMonEV
 #                         GNU General Public License v2.0 only.
-# - CPAN/*                FIXME.  There's a lot in here to pick through.  Given
-#                         that it would be better to drop as many bundled
-#                         modules as possible, it might be quicker to just do
-#                         that rather than work through this.
+# - CPAN/*                FIXME.  There's a lot in here to pick through.
 # - Bin/*/faad:           GNU General Public License v2.0 or later.
 # - Bin/*/flac:           GNU General Public License v2.0 or later.
 # - Bin/*/mac:            BSD 3-Clause "New" or "Revised" License.

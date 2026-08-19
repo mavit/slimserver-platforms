@@ -97,6 +97,12 @@ Source7:        %{shortname}.preset
 Source8:	dependencies.pl
 BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
+# https://sources.debian.org/src/slimserver/9.1.1%2Bdfsg-2/debian/patches/dbix-13-resultset.pm-take-version-from-l.patch
+Patch:          dbix-13-resultset.pm-take-version-from-l.patch
+
+# https://sources.debian.org/src/slimserver/9.1.1%2Bdfsg-2/debian/patches/dbix-23-resultset.pm-reapply-commit-efa4.patch
+Patch:          dbix-23-resultset.pm-reapply-commit-efa4.patch
+
 %if %{with bundled}
 License:	Artistic-2.0 AND BSD-3-Clause AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
 SourceLicense:	Artistic-2.0 AND BSD-3-Clause AND FIXME AND (GPL-1.0-or-later OR Artistic-1.0-Perl) AND (GPL-1.0-or-later AND Artistic-2.0) AND GPL-2.0-only AND GPL-2.0-or-later AND LGPL-2.1-or-later AND UNLICENSED
@@ -263,7 +269,8 @@ player. It supports MP3, AAC, WMA, FLAC, Ogg Vorbis, WAV and more!
 As of version 7.7 it also supports UPnP clients.
 
 %prep
-%autosetup -n %{src_basename}-%{version}%{?!with_release:-%{_revision}}%{?!with_bundled:-noCPAN}
+%autosetup -p1 -n %{src_basename}-%{version}%{?!with_release:-%{_revision}}%{?!with_bundled:-noCPAN}
+
 cp %SOURCE5 %SOURCE6 ./
 
 %if ! %{with bundled}

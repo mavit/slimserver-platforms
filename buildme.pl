@@ -650,6 +650,8 @@ sub buildRPM {
 	copy("$buildDir/platforms/redhat/dependencies.pl", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.systemd", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/README.rebranding", "$buildDir/rpm/SOURCES");
+        copy("$buildDir/platforms/redhat/dbix-13-resultset.pm-take-version-from-l.patch", "$buildDir/rpm/SOURCES");
+        copy("$buildDir/platforms/redhat/dbix-23-resultset.pm-reapply-commit-efa4.patch", "$buildDir/rpm/SOURCES");
         copy("$buildDir/platforms/redhat/lyrionmusicserver.spec", "$buildDir/rpm/SPECS");
 
 	chmod(0777 & ~umask(), "$buildDir/rpm/SOURCES/perlbundledlib.prov");

@@ -112,30 +112,6 @@ Requires(post):  /usr/bin/systemctl
 # The perl(:VERSION) is for Red Hat flavours, and the perl >= is for SUSE flavours.
 Requires: ((perl >= 5.22 or perl(:VERSION) >= 5.22) with ( perl < 5.43 or perl(:VERSION) < 5.43))
 
-# The following Requires are a list of the Perl modules we know that we need.
-# They are are required by Lyrion Music Server, but not shipped in the RPM 
-# package. 
-Requires:      perl(IO::Socket::SSL)
-Requires:      perl(strict)
-Requires:      perl(Config)
-Requires:      perl(Socket)
-Requires:      perl(FindBin)
-Requires:      perl(lib)
-Requires:      perl(Getopt::Long)
-Requires:      perl(File::Path)
-Requires:      perl(File::Copy)
-Requires:      perl(File::Find)
-Requires:      perl(POSIX)
-Requires:      perl(Time::HiRes)
-Requires:      perl(locale)
-Requires:      perl(DynaLoader)
-Requires:      perl(Sys::Hostname)
-Requires:      perl(Devel::Peek)
-Requires:      perl(I18N::LangTags)
-Requires:      perl(subs)
-Requires:      perl(Compress::Raw::Zlib)
-Requires:      perl(Digest::SHA)
-
 # Required for Unicode support on the fluorescent screens on old
 # hardware players:
 Recommends:    perl(Font::FreeType)

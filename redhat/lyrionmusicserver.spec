@@ -357,6 +357,17 @@ touch $RPM_BUILD_ROOT%{_var}/lib/%{shortname}/prefs/plugin/state.prefs
 ln -rs $RPM_BUILD_ROOT%{_var}/lib/%{shortname}/prefs/server.prefs \
 	$RPM_BUILD_ROOT%{_sysconfdir}/%{shortname}/server.conf
 
+%if %{without bundled}
+# This was modified to defer the loading of Module::Find to save a
+# little memory.  Upstream did this and more, way back in
+# https://github.com/Perl5/DBIx-Class/commit/3b80fa3
+rm $RPM_BUILD_ROOT%{_datadir}/%{shortname}/lib/DBIx/Class/Schema.pm
+
+# This has only been modified to suppress a warning.  It's probably
+# better to live with the warning than to have to patch it to keep it in
+# sync with the rest of DBIx-Class.
+rm $RPM_BUILD_ROOT%{_datadir}/%{shortname}/lib/DBIx/Class/ResultSet.pm
+%endif
 
 %pre -e
 function checkConfigMigration () {

@@ -266,6 +266,12 @@ As of version 7.7 it also supports UPnP clients.
 %autosetup -n %{src_basename}-%{version}%{?!with_release:-%{_revision}}%{?!with_bundled:-noCPAN}
 cp %SOURCE5 %SOURCE6 ./
 
+%if ! %{with bundled}
+# This depends on a shared library in the CPAN directory.
+rm lib/Audio/Scan.pm
+rmdir lib/Audio
+%endif
+
 
 %build
 %if %{with bundled}
